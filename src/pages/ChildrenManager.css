@@ -1,0 +1,57 @@
+.children-manager {
+  max-width: 500px;
+}
+
+.children-manager h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.4rem;
+  color: #1e293b;
+}
+
+.children-desc {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+.add-child-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.add-child-form input {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.add-child-form input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.children-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.child-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.95rem;
+  color: #1e293b;
+}

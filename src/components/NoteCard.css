@@ -1,0 +1,91 @@
+.note-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #94a3b8;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: box-shadow 0.15s;
+}
+
+.note-card:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.note-card-todo {
+  border-left-color: #22c55e;
+}
+.note-card-idea {
+  border-left-color: #eab308;
+}
+.note-card-observation {
+  border-left-color: #3b82f6;
+}
+.note-card-talk {
+  border-left-color: #a855f7;
+}
+
+.note-card.completed {
+  opacity: 0.6;
+}
+
+.note-card.completed .note-card-title {
+  text-decoration: line-through;
+}
+
+.note-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.note-category-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+}
+
+.note-child-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+}
+
+.note-card-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.btn-icon:hover {
+  background: #f1f5f9;
+}
+
+.note-card-title {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  color: #1e293b;
+}
+
+.note-card-content {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #64748b;
+  white-space: pre-wrap;
+}
