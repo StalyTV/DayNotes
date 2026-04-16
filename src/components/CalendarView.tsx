@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   format,
   startOfMonth,
@@ -20,6 +20,12 @@ export default function CalendarView() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const navigate = useNavigate();
   const [noteDates, setNoteDates] = useState<Map<string, string[]>>(new Map());
+  const [zoom, setZoom] = useState<{ rect: DOMRect; date: string } | null>(null);
+  const [zoomBack, setZoomBack] = useState<string | null>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const zoomBackRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dayRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
@@ -33,6 +39,45 @@ export default function CalendarView() {
     ).then(setNoteDates);
   }, [currentMonth]);
 
+  // Reverse zoom when returning from DayDetail
+  useEffect(() => {
+    const backDate = sessionStorage.getItem('zoomBackDate');
+    if (!backDate) return;
+    sessionStorage.removeItem('zoomBackDate');
+    setZoomBack(backDate);
+  }, []);
+
+  // Animate the reverse zoom overlay once it's mounted
+  useEffect(() => {
+    if (!zoomBack) return;
+    // Use a small delay to ensure the overlay and day refs are in the DOM
+    const timer = setTimeout(() => {
+      const overlay = zoomBackRef.current;
+      const dayEl = dayRefs.current.get(zoomBack);
+      if (!overlay || !dayEl) {
+        setZoomBack(null);
+        return;
+      }
+      const cellRect = dayEl.getBoundingClientRect();
+      // Trigger the shrink animation
+      requestAnimationFrame(() => {
+        overlay.style.top = cellRect.top + 'px';
+        overlay.style.left = cellRect.left + 'px';
+        overlay.style.width = cellRect.width + 'px';
+        overlay.style.height = cellRect.height + 'px';
+        overlay.style.borderRadius = '6px';
+        overlay.style.background = '#ffffff';
+        overlay.style.borderColor = '#e2e8f0';
+      });
+      // Fade out at the end, then clean up
+      setTimeout(() => {
+        if (overlay) overlay.style.opacity = '0';
+      }, 350);
+      setTimeout(() => setZoomBack(null), 500);
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [zoomBack]);
+
   const weeks: Date[][] = [];
   let day = calStart;
   while (day <= calEnd) {
@@ -44,12 +89,36 @@ export default function CalendarView() {
     weeks.push(week);
   }
 
-  function handleDayClick(d: Date) {
-    navigate(`/day/${format(d, 'yyyy-MM-dd')}`);
+  function handleDayClick(d: Date, e: React.MouseEvent<HTMLDivElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const dateStr = format(d, 'yyyy-MM-dd');
+    setZoom({ rect, date: dateStr });
+
+    // Wait for the overlay to mount, then expand to fill the main-content area
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const mainContent = containerRef.current?.closest('.main-content');
+        if (overlayRef.current && mainContent) {
+          const mainRect = mainContent.getBoundingClientRect();
+          overlayRef.current.style.top = mainRect.top + 'px';
+          overlayRef.current.style.left = mainRect.left + 'px';
+          overlayRef.current.style.width = mainRect.width + 'px';
+          overlayRef.current.style.height = mainRect.height + 'px';
+          overlayRef.current.style.borderRadius = '0';
+          overlayRef.current.style.background = '#f1f5f9';
+          overlayRef.current.style.borderColor = 'transparent';
+        }
+      });
+    });
+
+    // Navigate after animation finishes
+    setTimeout(() => {
+      navigate(`/day/${dateStr}`);
+    }, 400);
   }
 
   return (
-    <div className="calendar-view">
+    <div className="calendar-view" ref={containerRef}>
       <div className="calendar-header">
         <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
           ‹
@@ -74,8 +143,9 @@ export default function CalendarView() {
           return (
             <div
               key={i}
+              ref={(el) => { if (el) dayRefs.current.set(dateStr, el); }}
               className={`calendar-day${!inMonth ? ' outside' : ''}${isToday(d) ? ' today' : ''}${isSameDay(d, new Date()) ? ' selected' : ''}`}
-              onClick={() => handleDayClick(d)}
+              onClick={(e) => handleDayClick(d, e)}
             >
               <span className="day-number">{format(d, 'd')}</span>
               {categories.length > 0 && (
@@ -95,6 +165,39 @@ export default function CalendarView() {
           );
         })}
       </div>
+
+      {zoom && (
+        <div
+          ref={overlayRef}
+          className="zoom-overlay"
+          style={{
+            top: zoom.rect.top,
+            left: zoom.rect.left,
+            width: zoom.rect.width,
+            height: zoom.rect.height,
+          }}
+        />
+      )}
+
+      {zoomBack && (() => {
+        const mainContent = containerRef.current?.closest('.main-content');
+        const r = mainContent?.getBoundingClientRect();
+        return r ? (
+          <div
+            ref={zoomBackRef}
+            className="zoom-overlay"
+            style={{
+              top: r.top,
+              left: r.left,
+              width: r.width,
+              height: r.height,
+              borderRadius: '0',
+              background: '#f1f5f9',
+              borderColor: 'transparent',
+            }}
+          />
+        ) : null;
+      })()}
     </div>
   );
 }

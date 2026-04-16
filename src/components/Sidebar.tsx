@@ -1,12 +1,15 @@
 import { NavLink } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGlasses } from '@fortawesome/free-solid-svg-icons';
+import { faCalendar, faSquareCheck, faLightbulb, faComments } from '@fortawesome/free-regular-svg-icons';
 import './Sidebar.css';
 
 const navItems = [
-  { to: '/', label: 'Calendar', icon: '📅' },
-  { to: '/todos', label: "ToDo's", icon: '✅' },
-  { to: '/ideas', label: 'Ideas', icon: '💡' },
-  { to: '/observations', label: 'Observations', icon: '👀' },
-  { to: '/talks', label: 'Talks', icon: '💬' },
+  { to: '/', label: 'Calendar', icon: <FontAwesomeIcon icon={faCalendar} /> },
+  { to: '/todos', label: "ToDo's", icon: <FontAwesomeIcon icon={faSquareCheck} /> },
+  { to: '/ideas', label: 'Ideas', icon: <FontAwesomeIcon icon={faLightbulb} /> },
+  { to: '/observations', label: 'Observations', icon: <FontAwesomeIcon icon={faGlasses} /> },
+  { to: '/talks', label: 'Talks', icon: <FontAwesomeIcon icon={faComments} /> },
   { to: '/children', label: 'Children', icon: '🧒' },
 ];
 
