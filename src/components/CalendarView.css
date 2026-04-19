@@ -1,6 +1,8 @@
 .calendar-view {
-  max-width: 900px;
-  margin: 0 auto;
+  max-width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .calendar-header {
@@ -35,6 +37,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 2px;
+  flex: 1;
 }
 
 .calendar-weekday {
@@ -46,7 +49,6 @@
 }
 
 .calendar-day {
-  min-height: 80px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 6px;

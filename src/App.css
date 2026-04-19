@@ -1,6 +1,6 @@
 .app-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
 }
 
 .main-content {
@@ -8,6 +8,13 @@
   padding: 2rem;
   overflow-y: auto;
   position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content > * {
+  flex: 1;
+  min-height: 0;
 }
 
 /* Shared button styles */

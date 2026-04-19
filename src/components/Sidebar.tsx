@@ -1,16 +1,16 @@
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGlasses } from '@fortawesome/free-solid-svg-icons';
+import { faGlasses, faChildren } from '@fortawesome/free-solid-svg-icons';
 import { faCalendar, faSquareCheck, faLightbulb, faComments } from '@fortawesome/free-regular-svg-icons';
 import './Sidebar.css';
 
 const navItems = [
-  { to: '/', label: 'Calendar', icon: <FontAwesomeIcon icon={faCalendar} /> },
-  { to: '/todos', label: "ToDo's", icon: <FontAwesomeIcon icon={faSquareCheck} /> },
-  { to: '/ideas', label: 'Ideas', icon: <FontAwesomeIcon icon={faLightbulb} /> },
-  { to: '/observations', label: 'Observations', icon: <FontAwesomeIcon icon={faGlasses} /> },
-  { to: '/talks', label: 'Talks', icon: <FontAwesomeIcon icon={faComments} /> },
-  { to: '/children', label: 'Children', icon: '🧒' },
+  { to: '/', label: 'Kalender', icon: <FontAwesomeIcon icon={faCalendar} /> },
+  { to: '/todos', label: "Aufgaben", icon: <FontAwesomeIcon icon={faSquareCheck} /> },
+  { to: '/ideas', label: 'Ideen', icon: <FontAwesomeIcon icon={faLightbulb} /> },
+  { to: '/observations', label: 'Beobachtungen', icon: <FontAwesomeIcon icon={faGlasses} /> },
+  { to: '/talks', label: 'Gespräche', icon: <FontAwesomeIcon icon={faComments} /> },
+  { to: '/children', label: 'Kinder', icon: <FontAwesomeIcon icon={faChildren} /> },
 ];
 
 export default function Sidebar() {

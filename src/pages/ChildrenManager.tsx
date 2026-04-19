@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getAllChildren, addChild, removeChild } from '../storage';
 import type { Child } from '../types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { faTrashCan, faChildren } from '@fortawesome/free-solid-svg-icons';
 import './ChildrenManager.css';
 
 export default function ChildrenManager() {
@@ -57,7 +57,7 @@ export default function ChildrenManager() {
         <ul className="children-list">
           {children.map((c) => (
             <li key={c.id} className="child-item">
-              <span>🧒 {c.name}</span>
+              <span><FontAwesomeIcon icon={faChildren} /> {c.name}</span>
               <button
                 className="btn-icon"
                 title="Remove"

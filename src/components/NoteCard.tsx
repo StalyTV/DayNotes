@@ -1,6 +1,6 @@
 import type { Note } from '../types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencil, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { faPencil, faTrashCan, faChildren } from '@fortawesome/free-solid-svg-icons';
 import './NoteCard.css';
 
 interface Props {
@@ -48,7 +48,7 @@ export default function NoteCard({
           {categoryIcons[note.category]} {categoryLabels[note.category]}
         </span>
         {note.childName && (
-          <span className="note-child-badge">🧒 {note.childName}</span>
+          <span className="note-child-badge"><FontAwesomeIcon icon={faChildren} /> {note.childName}</span>
         )}
         <div className="note-card-actions">
           {note.category === 'todo' && onToggleComplete && (

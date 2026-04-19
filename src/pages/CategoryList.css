@@ -37,16 +37,48 @@
   color: #1e293b;
 }
 
-.note-date-label {
-  font-size: 0.75rem;
-  color: #94a3b8;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-  display: block;
-}
-
-.notes-list {
+/* Week / Day grouping */
+.notes-grouped {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1.25rem;
+}
+
+.week-group {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.week-group-header {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  padding: 0.25rem 0.5rem;
+  letter-spacing: 0.02em;
+}
+
+.day-group {
+  background: #334155;
+  border-radius: 10px;
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.day-group-header {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #94a3b8;
+  padding: 0.15rem 0.35rem;
+}
+
+.day-group-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }

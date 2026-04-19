@@ -1,6 +1,6 @@
 .day-detail {
   max-width: 100%;
-  height: calc(100vh - 4rem);
+  height: 100%;
   display: flex;
   flex-direction: column;
   animation: dayDetailFadeIn 0.35s ease-out both;
@@ -268,12 +268,13 @@
 .mention-dropdown {
   position: fixed;
   z-index: 100;
+  min-width: 160px;
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   list-style: none;
-  margin: 4px 0 0;
+  margin: 0;
   padding: 4px 0;
   max-height: 180px;
   overflow-y: auto;

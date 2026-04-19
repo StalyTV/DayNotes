@@ -19,7 +19,7 @@ export default function DayDetail() {
   const [children, setChildren] = useState<Child[]>([]);
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
   const [mentionIndex, setMentionIndex] = useState(0);
-  const [mentionPos, setMentionPos] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 0 });
+  const [mentionPos, setMentionPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const editRef = useRef<HTMLTextAreaElement>(null);
 
@@ -109,6 +109,37 @@ export default function DayDetail() {
     return editing ? editRef : inputRef;
   }
 
+  function getCaretCoordinates(el: HTMLTextAreaElement, position: number) {
+    const mirror = document.createElement('div');
+    const style = window.getComputedStyle(el);
+    const props = [
+      'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing',
+      'wordSpacing', 'textIndent', 'paddingTop', 'paddingRight', 'paddingBottom',
+      'paddingLeft', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth',
+      'borderLeftWidth', 'boxSizing', 'whiteSpace', 'wordWrap', 'overflowWrap',
+    ] as const;
+    mirror.style.position = 'absolute';
+    mirror.style.top = '0';
+    mirror.style.left = '-9999px';
+    mirror.style.visibility = 'hidden';
+    mirror.style.whiteSpace = 'pre-wrap';
+    mirror.style.wordWrap = 'break-word';
+    mirror.style.width = style.width;
+    for (const p of props) mirror.style[p as any] = style[p as any];
+    const textBefore = el.value.substring(0, position);
+    const textNode = document.createTextNode(textBefore);
+    mirror.appendChild(textNode);
+    const span = document.createElement('span');
+    span.textContent = '|';
+    mirror.appendChild(span);
+    document.body.appendChild(mirror);
+    const rect = el.getBoundingClientRect();
+    const top = rect.top + span.offsetTop - el.scrollTop;
+    const left = rect.left + span.offsetLeft - el.scrollLeft;
+    document.body.removeChild(mirror);
+    return { top, left };
+  }
+
   function detectMention(text: string, cursorPos: number) {
     const before = text.slice(0, cursorPos);
     const match = before.match(/@(\w*)$/);
@@ -117,8 +148,9 @@ export default function DayDetail() {
       setMentionIndex(0);
       const el = getActiveRef().current;
       if (el) {
-        const rect = el.getBoundingClientRect();
-        setMentionPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+        const coords = getCaretCoordinates(el, cursorPos);
+        const lineHeight = parseFloat(window.getComputedStyle(el).lineHeight) || 20;
+        setMentionPos({ top: coords.top + lineHeight + 4, left: coords.left });
       }
     } else {
       setMentionQuery(null);
@@ -347,7 +379,7 @@ export default function DayDetail() {
       {mentionQuery !== null && filteredChildren.length > 0 && (
         <ul
           className="mention-dropdown"
-          style={{ top: mentionPos.top, left: mentionPos.left, width: mentionPos.width }}
+          style={{ top: mentionPos.top, left: mentionPos.left }}
         >
           {filteredChildren.map((c, i) => (
             <li

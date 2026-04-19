@@ -16,21 +16,21 @@ function App() {
           <Route path="/day/:date" element={<DayDetail />} />
           <Route
             path="/todos"
-            element={<CategoryList category="todo" title="ToDo's" />}
+            element={<CategoryList category="todo" title="Aufgaben" />}
           />
           <Route
             path="/ideas"
-            element={<CategoryList category="idea" title="Ideas" />}
+            element={<CategoryList category="idea" title="Ideen" />}
           />
           <Route
             path="/observations"
             element={
-              <CategoryList category="observation" title="Observations" />
+              <CategoryList category="observation" title="Beobachtungen" />
             }
           />
           <Route
             path="/talks"
-            element={<CategoryList category="talk" title="Talks" />}
+            element={<CategoryList category="talk" title="Gespräche" />}
           />
           <Route path="/children" element={<ChildrenManager />} />
         </Routes>
