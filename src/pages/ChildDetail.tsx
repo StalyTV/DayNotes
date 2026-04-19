@@ -1,16 +1,14 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import type { NoteCategory, Note, Child } from '../types';
-import { getNotesByCategory, upsertNote, deleteNote, getAllChildren } from '../storage';
+import { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import type { Note } from '../types';
+import { getNotesByChild, upsertNote, deleteNote } from '../storage';
 import NoteCard from '../components/NoteCard';
 import NoteForm from '../components/NoteForm';
 import { format, parseISO, startOfWeek, endOfWeek } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChildren } from '@fortawesome/free-solid-svg-icons';
 import './CategoryList.css';
-
-interface Props {
-  category: NoteCategory;
-  title: string;
-}
 
 interface DayGroup {
   date: string;
@@ -22,12 +20,6 @@ interface WeekGroup {
   weekStart: string;
   weekLabel: string;
   days: DayGroup[];
-}
-
-function noteMatchesChild(note: Note, childName: string): boolean {
-  if (note.childName === childName) return true;
-  const text = (note.content || note.title || '').toLowerCase();
-  return text.includes(`@${childName.toLowerCase()}`);
 }
 
 function groupByWeekAndDay(notes: Note[]): WeekGroup[] {
@@ -63,18 +55,19 @@ function groupByWeekAndDay(notes: Note[]): WeekGroup[] {
   return weeks;
 }
 
-export default function CategoryList({ category, title }: Props) {
+export default function ChildDetail() {
+  const { name } = useParams<{ name: string }>();
+  const navigate = useNavigate();
   const [notes, setNotes] = useState<Note[]>([]);
   const [editing, setEditing] = useState<Note | null>(null);
-  const [filterChild, setFilterChild] = useState('');
-  const [filterOpen, setFilterOpen] = useState(false);
-  const filterRef = useRef<HTMLDivElement>(null);
-  const [children, setChildren] = useState<Child[]>([]);
+
+  const childName = decodeURIComponent(name || '');
 
   const refresh = useCallback(() => {
-    getNotesByCategory(category).then(setNotes);
-    getAllChildren().then(setChildren);
-  }, [category]);
+    if (childName) {
+      getNotesByChild(childName).then(setNotes);
+    }
+  }, [childName]);
 
   useEffect(() => {
     refresh();
@@ -96,73 +89,32 @@ export default function CategoryList({ category, title }: Props) {
     refresh();
   }
 
-  const showFilter = category === 'observation' || category === 'talk';
-
-  let filtered = notes;
-  if (showFilter && filterChild) {
-    filtered = filtered.filter((n) => noteMatchesChild(n, filterChild));
-  }
-
-  filtered = [...filtered].sort(
+  const sorted = [...notes].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
-  const weekGroups = groupByWeekAndDay(filtered);
+  const weekGroups = groupByWeekAndDay(sorted);
 
   return (
     <div className="category-list">
       <div className="category-header">
-        <h2>{title}</h2>
+        <button className="btn btn-secondary" onClick={() => navigate('/children')}>
+          ← Zurück
+        </button>
+        <h2><FontAwesomeIcon icon={faChildren} /> {childName}</h2>
       </div>
-
-      {showFilter && children.length > 0 && (
-        <div className="filter-bar">
-          <label>Nach Kind filtern:</label>
-          <div className="filter-dropdown" ref={filterRef}>
-            <button
-              className="filter-dropdown-trigger"
-              onClick={() => setFilterOpen(!filterOpen)}
-              onBlur={(e) => {
-                if (!filterRef.current?.contains(e.relatedTarget)) setFilterOpen(false);
-              }}
-            >
-              {filterChild || 'Alle Kinder'}
-              <span className="filter-chevron">{filterOpen ? '▲' : '▼'}</span>
-            </button>
-            {filterOpen && (
-              <ul className="filter-dropdown-menu">
-                <li
-                  className={`filter-dropdown-item${!filterChild ? ' filter-dropdown-item-active' : ''}`}
-                  onMouseDown={(e) => { e.preventDefault(); setFilterChild(''); setFilterOpen(false); }}
-                >
-                  Alle Kinder
-                </li>
-                {children.map((c) => (
-                  <li
-                    key={c.id}
-                    className={`filter-dropdown-item${filterChild === c.name ? ' filter-dropdown-item-active' : ''}`}
-                    onMouseDown={(e) => { e.preventDefault(); setFilterChild(c.name); setFilterOpen(false); }}
-                  >
-                    {c.name}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-      )}
 
       {editing ? (
         <NoteForm
           date={editing.date}
-          category={category}
+          category={editing.category}
           existing={editing}
           onSave={handleSave}
           onCancel={() => setEditing(null)}
         />
-      ) : filtered.length === 0 ? (
+      ) : sorted.length === 0 ? (
         <p className="empty-state">
-          Noch keine {title.toLowerCase()}.
+          Noch keine Beobachtungen oder Gespräche für {childName}.
         </p>
       ) : (
         <div className="notes-grouped">
@@ -179,7 +131,6 @@ export default function CategoryList({ category, title }: Props) {
                         note={n}
                         onEdit={setEditing}
                         onDelete={handleDelete}
-                        onToggleComplete={category === 'todo' ? handleToggle : undefined}
                       />
                     ))}
                   </div>

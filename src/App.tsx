@@ -4,6 +4,7 @@ import CalendarView from './components/CalendarView';
 import DayDetail from './pages/DayDetail';
 import CategoryList from './pages/CategoryList';
 import ChildrenManager from './pages/ChildrenManager';
+import ChildDetail from './pages/ChildDetail';
 import './App.css';
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
             element={<CategoryList category="talk" title="Gespräche" />}
           />
           <Route path="/children" element={<ChildrenManager />} />
+          <Route path="/children/:name" element={<ChildDetail />} />
         </Routes>
       </main>
     </div>

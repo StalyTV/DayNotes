@@ -56,6 +56,15 @@ export async function getNotesByCategory(category: string): Promise<Note[]> {
   return rows.map(rowToNote);
 }
 
+export async function getNotesByChild(childName: string): Promise<Note[]> {
+  const d = await getDb();
+  const rows = await d.select<NoteRow[]>(
+    `SELECT * FROM notes WHERE category IN ('observation', 'talk') AND (child_name = ? OR content LIKE ? OR title LIKE ?) ORDER BY date DESC`,
+    [childName, `%@${childName}%`, `%@${childName}%`]
+  );
+  return rows.map(rowToNote);
+}
+
 export async function upsertNote(note: Note): Promise<void> {
   const d = await getDb();
   const now = new Date().toISOString();
@@ -114,16 +123,16 @@ export async function removeChild(id: string): Promise<void> {
 
 // --- Dates with notes (for calendar dots) ---
 
-export async function getDatesWithNotes(startDate: string, endDate: string): Promise<Map<string, string[]>> {
+export async function getDatesWithNotes(startDate: string, endDate: string): Promise<Map<string, { category: string; count: number }[]>> {
   const d = await getDb();
-  const rows = await d.select<{ date: string; category: string }[]>(
-    'SELECT DISTINCT date, category FROM notes WHERE date >= ? AND date <= ? ORDER BY date',
+  const rows = await d.select<{ date: string; category: string; cnt: number }[]>(
+    'SELECT date, category, COUNT(*) as cnt FROM notes WHERE date >= ? AND date <= ? GROUP BY date, category ORDER BY date',
     [startDate, endDate]
   );
-  const map = new Map<string, string[]>();
+  const map = new Map<string, { category: string; count: number }[]>();
   for (const row of rows) {
     const existing = map.get(row.date) ?? [];
-    existing.push(row.category);
+    existing.push({ category: row.category, count: row.cnt });
     map.set(row.date, existing);
   }
   return map;

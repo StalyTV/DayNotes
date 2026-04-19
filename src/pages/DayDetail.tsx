@@ -1,10 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import type { Note, NoteCategory, Child } from '../types';
 import { getNotesForDate, upsertNote, deleteNote, getAllChildren } from '../storage';
 import NoteCard from '../components/NoteCard';
 import { v4 as uuidv4 } from 'uuid';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 import './DayDetail.css';
 
 export default function DayDetail() {
@@ -109,37 +112,6 @@ export default function DayDetail() {
     return editing ? editRef : inputRef;
   }
 
-  function getCaretCoordinates(el: HTMLTextAreaElement, position: number) {
-    const mirror = document.createElement('div');
-    const style = window.getComputedStyle(el);
-    const props = [
-      'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing',
-      'wordSpacing', 'textIndent', 'paddingTop', 'paddingRight', 'paddingBottom',
-      'paddingLeft', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth',
-      'borderLeftWidth', 'boxSizing', 'whiteSpace', 'wordWrap', 'overflowWrap',
-    ] as const;
-    mirror.style.position = 'absolute';
-    mirror.style.top = '0';
-    mirror.style.left = '-9999px';
-    mirror.style.visibility = 'hidden';
-    mirror.style.whiteSpace = 'pre-wrap';
-    mirror.style.wordWrap = 'break-word';
-    mirror.style.width = style.width;
-    for (const p of props) mirror.style[p as any] = style[p as any];
-    const textBefore = el.value.substring(0, position);
-    const textNode = document.createTextNode(textBefore);
-    mirror.appendChild(textNode);
-    const span = document.createElement('span');
-    span.textContent = '|';
-    mirror.appendChild(span);
-    document.body.appendChild(mirror);
-    const rect = el.getBoundingClientRect();
-    const top = rect.top + span.offsetTop - el.scrollTop;
-    const left = rect.left + span.offsetLeft - el.scrollLeft;
-    document.body.removeChild(mirror);
-    return { top, left };
-  }
-
   function detectMention(text: string, cursorPos: number) {
     const before = text.slice(0, cursorPos);
     const match = before.match(/@(\w*)$/);
@@ -148,9 +120,8 @@ export default function DayDetail() {
       setMentionIndex(0);
       const el = getActiveRef().current;
       if (el) {
-        const coords = getCaretCoordinates(el, cursorPos);
-        const lineHeight = parseFloat(window.getComputedStyle(el).lineHeight) || 20;
-        setMentionPos({ top: coords.top + lineHeight + 4, left: coords.left });
+        const rect = el.getBoundingClientRect();
+        setMentionPos({ top: rect.bottom + 4, left: rect.left });
       }
     } else {
       setMentionQuery(null);
@@ -212,6 +183,8 @@ export default function DayDetail() {
     talk: 'Gespräch',
   };
 
+
+
   return (
     <div className={`day-detail${closing ? ' day-detail-closing' : ''}`}>
       <div className="day-detail-header">
@@ -234,11 +207,24 @@ export default function DayDetail() {
               <div className="day-column-body">
                 {catNotes.map((n) => (
                   editing?.id === n.id ? (
-                    <div key={n.id} className="inline-add-form">
+                    <div key={n.id} className={`note-card note-card-${cat} note-card-editing`}>
+                      <div className="note-card-header">
+                        <span className="note-category-badge">
+                          {categoryLabels[cat]}
+                        </span>
+                        <div className="note-card-actions">
+                          <button className="btn-icon" title="Speichern" onClick={() => handleEditSave()}>
+                            <FontAwesomeIcon icon={faCheck} />
+                          </button>
+                          <button className="btn-icon" title="Abbrechen" onClick={() => { setEditing(null); setEditText(''); }}>
+                            <FontAwesomeIcon icon={faXmark} />
+                          </button>
+                        </div>
+                      </div>
                       <div className="inline-add-input-wrapper">
                         <textarea
                           ref={editRef}
-                          className="inline-add-input"
+                          className="note-card-edit-input"
                           placeholder="Text eingeben..."
                           value={editText}
                           onChange={handleTextareaInput}
@@ -276,20 +262,21 @@ export default function DayDetail() {
                           }}
                           rows={1}
                         />
-                      </div>
-                      <div className="inline-add-actions">
-                        <button
-                          className={`btn-inline-save btn-inline-save-${cat}`}
-                          onClick={() => handleEditSave()}
-                        >
-                          Speichern
-                        </button>
-                        <button
-                          className="btn-inline-cancel"
-                          onClick={() => { setEditing(null); setEditText(''); }}
-                        >
-                          Abbrechen
-                        </button>
+                        {editing?.id === n.id && mentionQuery !== null && filteredChildren.length > 0 && createPortal(
+                          <ul className="mention-dropdown" style={{ top: mentionPos.top, left: mentionPos.left }}>
+                            {filteredChildren.map((c, i) => (
+                              <li
+                                key={c.id}
+                                className={`mention-item${i === mentionIndex ? ' mention-item-active' : ''}`}
+                                onMouseDown={(e) => { e.preventDefault(); insertMention(c.name); }}
+                                onMouseEnter={() => setMentionIndex(i)}
+                              >
+                                @{c.name}
+                              </li>
+                            ))}
+                          </ul>,
+                          document.body
+                        )}
                       </div>
                     </div>
                   ) : (
@@ -304,62 +291,76 @@ export default function DayDetail() {
                 ))}
 
                 {isAdding ? (
-                  <div className="inline-add-form">
+                  <div className={`note-card note-card-${cat} note-card-editing`}>
+                    <div className="note-card-header">
+                      <span className="note-category-badge">
+                        {categoryLabels[cat]}
+                      </span>
+                      <div className="note-card-actions">
+                        <button className="btn-icon" title="Hinzufügen" onClick={() => handleQuickAdd(cat)}>
+                          <FontAwesomeIcon icon={faCheck} />
+                        </button>
+                        <button className="btn-icon" title="Abbrechen" onClick={() => { setAdding(null); setAddText(''); }}>
+                          <FontAwesomeIcon icon={faXmark} />
+                        </button>
+                      </div>
+                    </div>
                     <div className="inline-add-input-wrapper">
-                    <textarea
-                      ref={inputRef}
-                      className="inline-add-input"
-                      placeholder="Text eingeben..."
-                      value={addText}
-                      onChange={handleTextareaInput}
-                      onKeyDown={(e) => {
-                        if (mentionQuery !== null && filteredChildren.length > 0) {
-                          if (e.key === 'ArrowDown') {
-                            e.preventDefault();
-                            setMentionIndex(i => (i + 1) % filteredChildren.length);
-                            return;
+                      <textarea
+                        ref={inputRef}
+                        className="note-card-edit-input"
+                        placeholder="Text eingeben..."
+                        value={addText}
+                        onChange={handleTextareaInput}
+                        onKeyDown={(e) => {
+                          if (mentionQuery !== null && filteredChildren.length > 0) {
+                            if (e.key === 'ArrowDown') {
+                              e.preventDefault();
+                              setMentionIndex(i => (i + 1) % filteredChildren.length);
+                              return;
+                            }
+                            if (e.key === 'ArrowUp') {
+                              e.preventDefault();
+                              setMentionIndex(i => (i - 1 + filteredChildren.length) % filteredChildren.length);
+                              return;
+                            }
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              insertMention(filteredChildren[mentionIndex].name);
+                              return;
+                            }
+                            if (e.key === 'Escape') {
+                              e.preventDefault();
+                              setMentionQuery(null);
+                              return;
+                            }
                           }
-                          if (e.key === 'ArrowUp') {
+                          if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
-                            setMentionIndex(i => (i - 1 + filteredChildren.length) % filteredChildren.length);
-                            return;
-                          }
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            insertMention(filteredChildren[mentionIndex].name);
-                            return;
+                            handleQuickAdd(cat);
                           }
                           if (e.key === 'Escape') {
-                            e.preventDefault();
-                            setMentionQuery(null);
-                            return;
+                            setAdding(null);
+                            setAddText('');
                           }
-                        }
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleQuickAdd(cat);
-                        }
-                        if (e.key === 'Escape') {
-                          setAdding(null);
-                          setAddText('');
-                        }
-                      }}
-                      rows={1}
-                    />
-                    </div>
-                    <div className="inline-add-actions">
-                      <button
-                        className={`btn-inline-save btn-inline-save-${cat}`}
-                        onClick={() => handleQuickAdd(cat)}
-                      >
-                        Hinzufügen
-                      </button>
-                      <button
-                        className="btn-inline-cancel"
-                        onClick={() => { setAdding(null); setAddText(''); }}
-                      >
-                        Abbrechen
-                      </button>
+                        }}
+                        rows={1}
+                      />
+                      {isAdding && mentionQuery !== null && filteredChildren.length > 0 && createPortal(
+                        <ul className="mention-dropdown" style={{ top: mentionPos.top, left: mentionPos.left }}>
+                          {filteredChildren.map((c, i) => (
+                            <li
+                              key={c.id}
+                              className={`mention-item${i === mentionIndex ? ' mention-item-active' : ''}`}
+                              onMouseDown={(e) => { e.preventDefault(); insertMention(c.name); }}
+                              onMouseEnter={() => setMentionIndex(i)}
+                            >
+                              @{c.name}
+                            </li>
+                          ))}
+                        </ul>,
+                        document.body
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -367,7 +368,7 @@ export default function DayDetail() {
                     className={`btn-column-add btn-column-add-${cat}`}
                     onClick={() => startAdding(cat)}
                   >
-                    + Hinzufügen
+                    <span className="btn-column-add-icon">+</span> Hinzufügen
                   </button>
                 )}
               </div>
@@ -375,24 +376,6 @@ export default function DayDetail() {
           );
         })}
       </div>
-
-      {mentionQuery !== null && filteredChildren.length > 0 && (
-        <ul
-          className="mention-dropdown"
-          style={{ top: mentionPos.top, left: mentionPos.left }}
-        >
-          {filteredChildren.map((c, i) => (
-            <li
-              key={c.id}
-              className={`mention-item${i === mentionIndex ? ' mention-item-active' : ''}`}
-              onMouseDown={(e) => { e.preventDefault(); insertMention(c.name); }}
-              onMouseEnter={() => setMentionIndex(i)}
-            >
-              @{c.name}
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }

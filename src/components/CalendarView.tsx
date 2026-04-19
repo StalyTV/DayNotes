@@ -19,7 +19,7 @@ import './CalendarView.css';
 export default function CalendarView() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const navigate = useNavigate();
-  const [noteDates, setNoteDates] = useState<Map<string, string[]>>(new Map());
+  const [noteDates, setNoteDates] = useState<Map<string, { category: string; count: number }[]>>(new Map());
   const [zoom, setZoom] = useState<{ rect: DOMRect; date: string } | null>(null);
   const [zoomBack, setZoomBack] = useState<string | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -138,7 +138,7 @@ export default function CalendarView() {
 
         {weeks.flat().map((d, i) => {
           const dateStr = format(d, 'yyyy-MM-dd');
-          const categories = noteDates.get(dateStr) ?? [];
+          const catData = noteDates.get(dateStr) ?? [];
           const inMonth = isSameMonth(d, monthStart);
           return (
             <div
@@ -148,17 +148,18 @@ export default function CalendarView() {
               onClick={(e) => handleDayClick(d, e)}
             >
               <span className="day-number">{format(d, 'd')}</span>
-              {categories.length > 0 && (
+              {catData.length > 0 && (
                 <div className="day-dots">
-                  {categories.slice(0, 4).map((cat, idx) => (
-                    <span
-                      key={idx}
-                      className={`dot dot-${cat}`}
-                    />
+                  {catData.map((c, ci) => (
+                    <div key={ci} className="dot-row">
+                      {Array.from({ length: c.count }, (_, di) => (
+                        <span
+                          key={di}
+                          className={`dot dot-${c.category}`}
+                        />
+                      ))}
+                    </div>
                   ))}
-                  {categories.length > 4 && (
-                    <span className="dot-more">+{categories.length - 4}</span>
-                  )}
                 </div>
               )}
             </div>

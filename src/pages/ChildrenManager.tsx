@@ -1,12 +1,14 @@
 import { useState, useEffect, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { getAllChildren, addChild, removeChild } from '../storage';
 import type { Child } from '../types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrashCan, faChildren } from '@fortawesome/free-solid-svg-icons';
+import { faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import './ChildrenManager.css';
 
 export default function ChildrenManager() {
+  const navigate = useNavigate();
   const [children, setChildren] = useState<Child[]>([]);
   const [name, setName] = useState('');
 
@@ -33,10 +35,9 @@ export default function ChildrenManager() {
 
   return (
     <div className="children-manager">
-      <h2>Manage Children</h2>
+      <h2>Kinder verwalten</h2>
       <p className="children-desc">
-        Add the children in your kindergarten group. These names will appear
-        when creating Observations.
+        Füge Kinder hinzu, um sie bei Beobachtungen und Gesprächen zu erwähnen. Du kannst jederzeit Kinder entfernen - die zugehörigen Notizen bleiben erhalten.
       </p>
 
       <form className="add-child-form" onSubmit={handleAdd}>
@@ -47,7 +48,7 @@ export default function ChildrenManager() {
           required
         />
         <button type="submit" className="btn btn-primary">
-          + Add
+          + Hinzufügen
         </button>
       </form>
 
@@ -57,7 +58,12 @@ export default function ChildrenManager() {
         <ul className="children-list">
           {children.map((c) => (
             <li key={c.id} className="child-item">
-              <span><FontAwesomeIcon icon={faChildren} /> {c.name}</span>
+              <span
+                className="child-item-name"
+                onClick={() => navigate(`/children/${encodeURIComponent(c.name)}`)}
+              >
+                {c.name}
+              </span>
               <button
                 className="btn-icon"
                 title="Remove"

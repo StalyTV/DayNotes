@@ -6,7 +6,7 @@ import './Sidebar.css';
 
 const navItems = [
   { to: '/', label: 'Kalender', icon: <FontAwesomeIcon icon={faCalendar} /> },
-  { to: '/todos', label: "Aufgaben", icon: <FontAwesomeIcon icon={faSquareCheck} /> },
+  { to: '/todos', label: "ToDos", icon: <FontAwesomeIcon icon={faSquareCheck} /> },
   { to: '/ideas', label: 'Ideen', icon: <FontAwesomeIcon icon={faLightbulb} /> },
   { to: '/observations', label: 'Beobachtungen', icon: <FontAwesomeIcon icon={faGlasses} /> },
   { to: '/talks', label: 'Gespräche', icon: <FontAwesomeIcon icon={faComments} /> },

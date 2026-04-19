@@ -12,17 +12,12 @@ interface Props {
 
 const categoryLabels: Record<string, string> = {
   todo: "ToDo",
-  idea: "Idea",
-  observation: "Observation",
-  talk: "Talk",
+  idea: "Idee",
+  observation: "Beobachung",
+  talk: "Gespräch",
 };
 
-const categoryIcons: Record<string, string> = {
-  todo: '✅',
-  idea: '💡',
-  observation: '👀',
-  talk: '💬',
-};
+
 
 function renderWithMentions(text: string) {
   const parts = text.split(/(@\w+)/g);
@@ -45,7 +40,7 @@ export default function NoteCard({
     <div className={`note-card note-card-${note.category}${note.completed ? ' completed' : ''}`}>
       <div className="note-card-header">
         <span className="note-category-badge">
-          {categoryIcons[note.category]} {categoryLabels[note.category]}
+          {categoryLabels[note.category]}
         </span>
         {note.childName && (
           <span className="note-child-badge"><FontAwesomeIcon icon={faChildren} /> {note.childName}</span>
