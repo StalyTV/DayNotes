@@ -84,11 +84,6 @@ export default function ChildDetail() {
     refresh();
   }
 
-  async function handleToggle(note: Note) {
-    await upsertNote({ ...note, completed: !note.completed });
-    refresh();
-  }
-
   const sorted = [...notes].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );

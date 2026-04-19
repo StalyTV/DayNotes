@@ -37,7 +37,7 @@ export default function CalendarView() {
       format(calStart, 'yyyy-MM-dd'),
       format(calEnd, 'yyyy-MM-dd')
     ).then(setNoteDates);
-  }, [currentMonth]);
+  }, [currentMonth, calStart, calEnd]);
 
   // Reverse zoom when returning from DayDetail
   useEffect(() => {
