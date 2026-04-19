@@ -1,4 +1,6 @@
 import type { Note } from '../types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPencil, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import './NoteCard.css';
 
 interface Props {
@@ -21,6 +23,17 @@ const categoryIcons: Record<string, string> = {
   observation: '👀',
   talk: '💬',
 };
+
+function renderWithMentions(text: string) {
+  const parts = text.split(/(@\w+)/g);
+  return parts.map((part, i) =>
+    part.startsWith('@') && part.length > 1 ? (
+      <span key={i} className="mention-badge">{part.slice(1)}</span>
+    ) : (
+      part
+    )
+  );
+}
 
 export default function NoteCard({
   note,
@@ -48,19 +61,18 @@ export default function NoteCard({
             </button>
           )}
           <button className="btn-icon" title="Edit" onClick={() => onEdit(note)}>
-            ✏️
+            <FontAwesomeIcon icon={faPencil} />
           </button>
           <button
             className="btn-icon"
             title="Delete"
             onClick={() => onDelete(note.id)}
           >
-            🗑️
+            <FontAwesomeIcon icon={faTrashCan} />
           </button>
         </div>
       </div>
-      <h3 className="note-card-title">{note.title}</h3>
-      {note.content && <p className="note-card-content">{note.content}</p>}
+      <p className="note-card-content">{renderWithMentions(note.content || note.title)}</p>
     </div>
   );
 }

@@ -85,7 +85,17 @@
 
 .note-card-content {
   margin: 0;
-  font-size: 0.9rem;
-  color: #64748b;
+  font-size: 1.05rem;
+  color: #000000;
   white-space: pre-wrap;
+}
+
+.mention-badge {
+  background: #ede9fe;
+  color: #7c3aed;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85em;
+  white-space: nowrap;
 }

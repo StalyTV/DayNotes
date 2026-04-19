@@ -2,6 +2,8 @@ import { useState, useEffect, type FormEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { getAllChildren, addChild, removeChild } from '../storage';
 import type { Child } from '../types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import './ChildrenManager.css';
 
 export default function ChildrenManager() {
@@ -61,7 +63,7 @@ export default function ChildrenManager() {
                 title="Remove"
                 onClick={() => handleRemove(c.id)}
               >
-                🗑️
+                <FontAwesomeIcon icon={faTrashCan} />
               </button>
             </li>
           ))}
