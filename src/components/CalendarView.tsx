@@ -22,6 +22,7 @@ export default function CalendarView() {
   const [noteDates, setNoteDates] = useState<Map<string, { category: string; count: number }[]>>(new Map());
   const [zoom, setZoom] = useState<{ rect: DOMRect; date: string } | null>(null);
   const [zoomBack, setZoomBack] = useState<string | null>(null);
+  const [zoomBackRect, setZoomBackRect] = useState<DOMRect | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const zoomBackRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -44,6 +45,9 @@ export default function CalendarView() {
     const backDate = sessionStorage.getItem('zoomBackDate');
     if (!backDate) return;
     sessionStorage.removeItem('zoomBackDate');
+    const mainContent = containerRef.current?.closest('.main-content');
+    const r = mainContent?.getBoundingClientRect() ?? null;
+    setZoomBackRect(r);
     setZoomBack(backDate);
   }, []);
 
@@ -180,25 +184,21 @@ export default function CalendarView() {
         />
       )}
 
-      {zoomBack && (() => {
-        const mainContent = containerRef.current?.closest('.main-content');
-        const r = mainContent?.getBoundingClientRect();
-        return r ? (
+      {zoomBack && zoomBackRect && (
           <div
             ref={zoomBackRef}
             className="zoom-overlay"
             style={{
-              top: r.top,
-              left: r.left,
-              width: r.width,
-              height: r.height,
+              top: zoomBackRect.top,
+              left: zoomBackRect.left,
+              width: zoomBackRect.width,
+              height: zoomBackRect.height,
               borderRadius: '0',
               background: '#f1f5f9',
               borderColor: 'transparent',
             }}
           />
-        ) : null;
-      })()}
+      )}
     </div>
   );
 }
