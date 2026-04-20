@@ -52,7 +52,13 @@ export async function getNotesForDate(date: string): Promise<Note[]> {
 
 export async function getNotesByCategory(category: string): Promise<Note[]> {
   const d = await getDb();
-  const rows = await d.select<NoteRow[]>('SELECT * FROM notes WHERE category = ? ORDER BY date DESC', [category]);
+  const rows = await d.select<NoteRow[]>('SELECT * FROM notes WHERE category = ? AND completed = 0 ORDER BY date DESC', [category]);
+  return rows.map(rowToNote);
+}
+
+export async function getCompletedTodos(): Promise<Note[]> {
+  const d = await getDb();
+  const rows = await d.select<NoteRow[]>('SELECT * FROM notes WHERE category = ? AND completed = 1 ORDER BY updated_at DESC', ['todo']);
   return rows.map(rowToNote);
 }
 

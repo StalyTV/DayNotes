@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import CalendarView from './components/CalendarView';
 import DayDetail from './pages/DayDetail';
 import CategoryList from './pages/CategoryList';
+import TodoArchive from './pages/TodoArchive';
 import ChildrenManager from './pages/ChildrenManager';
 import ChildDetail from './pages/ChildDetail';
 import './App.css';
@@ -19,6 +20,7 @@ function App() {
             path="/todos"
             element={<CategoryList category="todo" title="Aufgaben" />}
           />
+          <Route path="/todo-archiv" element={<TodoArchive />} />
           <Route
             path="/ideas"
             element={<CategoryList category="idea" title="Ideen" />}

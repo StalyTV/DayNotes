@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGlasses, faChildren } from '@fortawesome/free-solid-svg-icons';
+import { faGlasses, faChildren, faBoxArchive } from '@fortawesome/free-solid-svg-icons';
 import { faCalendar, faSquareCheck, faLightbulb, faComments } from '@fortawesome/free-regular-svg-icons';
 import './Sidebar.css';
 
@@ -11,6 +11,10 @@ const navItems = [
   { to: '/observations', label: 'Beobachtungen', icon: <FontAwesomeIcon icon={faGlasses} /> },
   { to: '/talks', label: 'Gespräche', icon: <FontAwesomeIcon icon={faComments} /> },
   { to: '/children', label: 'Kinder', icon: <FontAwesomeIcon icon={faChildren} /> },
+];
+
+const bottomItems = [
+  { to: '/todo-archiv', label: 'ToDo Archiv', icon: <FontAwesomeIcon icon={faBoxArchive} /> },
 ];
 
 export default function Sidebar() {
@@ -26,6 +30,20 @@ export default function Sidebar() {
             key={item.to}
             to={item.to}
             end={item.to === '/'}
+            className={({ isActive }) =>
+              `sidebar-link${isActive ? ' active' : ''}`
+            }
+          >
+            <span className="sidebar-icon">{item.icon}</span>
+            {item.label}
+          </NavLink>
+        ))}
+      </nav>
+      <nav className="sidebar-nav sidebar-nav-bottom">
+        {bottomItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
             className={({ isActive }) =>
               `sidebar-link${isActive ? ' active' : ''}`
             }
