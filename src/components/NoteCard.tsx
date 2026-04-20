@@ -81,7 +81,7 @@ export default function NoteCard({
     setCompleting(true);
     timerRef.current = setTimeout(() => {
       startBurst();
-    }, 10);
+    }, 600);
   }
 
   if (collapsing) {
@@ -149,7 +149,7 @@ export default function NoteCard({
       )}
       <div
         ref={cardRef}
-        className={`note-card note-card-${note.category}${completing ? ' completing' : ''}${bursting ? ' bursting' : ''}${archiveMode ? '' : note.completed ? ' completed' : ''}`}
+        className={`note-card note-card-${note.category}${completing ? ' completing' : ''}${bursting ? ' bursting' : ''}${note.completed ? ' completed' : ''}`}
       >
       <div className="note-card-header">
         <span className="note-category-badge">

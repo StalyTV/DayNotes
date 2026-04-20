@@ -35,6 +35,13 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
+.add-child-error {
+  color: #dc2626;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: -0.75rem 0 0.75rem;
+}
+
 .children-list {
   list-style: none;
   padding: 0;

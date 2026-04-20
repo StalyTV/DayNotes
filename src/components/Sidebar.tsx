@@ -22,6 +22,7 @@ export default function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-header">
         <h1>DayNotes</h1>
+        <h5>Test Version</h5>
         <span className="sidebar-subtitle">Kindergarten Planner</span>
       </div>
       <nav className="sidebar-nav">

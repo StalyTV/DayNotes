@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   format,
   startOfMonth,
@@ -21,11 +21,7 @@ export default function CalendarView() {
   const navigate = useNavigate();
   const [noteDates, setNoteDates] = useState<Map<string, { category: string; count: number }[]>>(new Map());
   const [zoom, setZoom] = useState<{ rect: DOMRect; date: string } | null>(null);
-  const [zoomBack, setZoomBack] = useState<string | null>(() => {
-    const d = sessionStorage.getItem('zoomBackDate');
-    if (d) sessionStorage.removeItem('zoomBackDate');
-    return d;
-  });
+  const [zoomBack, setZoomBack] = useState<string | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const zoomBackRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -41,21 +37,15 @@ export default function CalendarView() {
       format(calStart, 'yyyy-MM-dd'),
       format(calEnd, 'yyyy-MM-dd')
     ).then(setNoteDates);
-  }, [currentMonth, calStart, calEnd]);
+  }, [currentMonth]);
 
-  // Set initial overlay position before browser paints
-  useLayoutEffect(() => {
-    if (!zoomBack) return;
-    const overlay = zoomBackRef.current;
-    const mainContent = containerRef.current?.closest('.main-content');
-    const r = mainContent?.getBoundingClientRect();
-    if (overlay && r) {
-      overlay.style.top = r.top + 'px';
-      overlay.style.left = r.left + 'px';
-      overlay.style.width = r.width + 'px';
-      overlay.style.height = r.height + 'px';
-    }
-  }, [zoomBack]);
+  // Reverse zoom when returning from DayDetail
+  useEffect(() => {
+    const backDate = sessionStorage.getItem('zoomBackDate');
+    if (!backDate) return;
+    sessionStorage.removeItem('zoomBackDate');
+    setZoomBack(backDate);
+  }, []);
 
   // Animate the reverse zoom overlay once it's mounted
   useEffect(() => {
@@ -190,17 +180,25 @@ export default function CalendarView() {
         />
       )}
 
-      {zoomBack && (
+      {zoomBack && (() => {
+        const mainContent = containerRef.current?.closest('.main-content');
+        const r = mainContent?.getBoundingClientRect();
+        return r ? (
           <div
             ref={zoomBackRef}
             className="zoom-overlay"
             style={{
+              top: r.top,
+              left: r.left,
+              width: r.width,
+              height: r.height,
               borderRadius: '0',
               background: '#f1f5f9',
               borderColor: 'transparent',
             }}
           />
-      )}
+        ) : null;
+      })()}
     </div>
   );
 }

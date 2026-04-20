@@ -16,11 +16,17 @@
 
 .sidebar-header h1 {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.7rem;
   font-weight: 700;
   color: #f8fafc;
 }
 
+.sidebar-header h5 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffa41b;
+}
 .sidebar-subtitle {
   font-size: 0.75rem;
   color: #94a3b8;

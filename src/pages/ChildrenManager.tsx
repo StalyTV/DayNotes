@@ -11,6 +11,7 @@ export default function ChildrenManager() {
   const navigate = useNavigate();
   const [children, setChildren] = useState<Child[]>([]);
   const [name, setName] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     getAllChildren().then(setChildren);
@@ -22,8 +23,14 @@ export default function ChildrenManager() {
 
   async function handleAdd(e: FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
-    await addChild({ id: uuidv4(), name: name.trim() });
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    if (/\s/.test(trimmed)) {
+      setError('Der Name darf keine Leerzeichen enthalten.');
+      return;
+    }
+    setError('');
+    await addChild({ id: uuidv4(), name: trimmed });
     setName('');
     refresh();
   }
@@ -51,6 +58,7 @@ export default function ChildrenManager() {
           + Hinzufügen
         </button>
       </form>
+      {error && <p className="add-child-error">{error}</p>}
 
       {children.length === 0 ? (
         <p className="empty-state">No children added yet.</p>
